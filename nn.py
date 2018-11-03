@@ -7,52 +7,48 @@ class NeuralNetwork:
     def __init__(self, inputs, y): #number of layers, array of nodes per layer, add biases
         self.input      = inputs
         self.y          = y
+        self.number_of_layers = 3
         self.weights = [np.random.rand(self.input.shape[1], 3), np.random.rand(3, 2), np.random.rand(2, self.y.shape[1])]
         bf.exp(5000,bf.precision(100))
         self.biases = [np.random.rand(3), np.random.rand(2), np.random.rand(self.y.shape[1])]
-        #self.layers = num of layers + 1 for input
+        first = array((self.input.shape[0], self.weights[0].shape[1]))
+        second = array((first.shape[0], self.weights[1].shape[1]))
+        third = array((second.shape[0], self.weights[2].shape[1]))
+        self.layers = [first, second, third]
 
     #def addlayer(self, num_of_nodes):
 
     def feedforward(self, layer):
+        i = 0
         for w, b in zip(self.weights, self.biases):
-            layer = sigmoid(np.dot(layer, w) + b)
-        return layer
+            if(i > 0):
+                layer = self.layers[i - 1]
+            self.layers[i] = sigmoid(np.dot(layer, w) + b)
+            i += 1
+        return self.layers[self.number_of_layers - 1]
 
     def backprop(self):
-        layer1 = sigmoid(np.dot(self.input, self.weights[0]) + self.biases[0])
-        layer2 = sigmoid(np.dot(layer1, self.weights[1]) + self.biases[1])
-        output = sigmoid(np.dot(layer2, self.weights[2]) + self.biases[2])
-
-        w2 = 2 * (self.y - output) * sigmoid_derivative(output)
-        d_weights2 = np.dot(layer2.T, w2)
-        w1 = np.dot(w2, self.weights[2].T) * sigmoid_derivative(layer2)
-        d_weights1 = np.dot(layer1.T, w1)
-        w0 = np.dot(w1, self.weights[1].T) * sigmoid_derivative(layer1)
+        w2 = 2 * (self.y - self.layers[2]) * sigmoid_derivative(self.layers[2])
+        d_weights2 = np.dot(self.layers[1].T, w2)
+        w1 = np.dot(w2, self.weights[2].T) * sigmoid_derivative(self.layers[1])
+        d_weights1 = np.dot(self.layers[0].T, w1)
+        w0 = np.dot(w1, self.weights[1].T) * sigmoid_derivative(self.layers[0])
         d_weights0 = np.dot(self.input.T, w0)
 
-        d_biases2 = 2 * (self.y - output) * sigmoid_derivative(output)
-        d_biases1 = np.dot(d_biases2, self.weights[2].T) * sigmoid_derivative(layer2)
-        d_biases0 = np.dot(np.ones((3, 6)), np.dot(d_biases1, self.weights[1].T) * sigmoid_derivative(layer1))
-
-        self.biases[0] += d_biases0[0]
-        self.biases[1] += d_biases1[0]
-        self.biases[2] += d_biases2[0]
+        d_bias = 2 * (self.y - self.layers[2]) * sigmoid_derivative(self.layers[2])
+        for x in range(self.number_of_layers):
+            self.biases[self.number_of_layers - 1 - x] += d_bias[0]
+            if(x < self.number_of_layers - 1):
+                d_bias = np.dot(d_bias, self.weights[self.number_of_layers - 1 - x].T) * sigmoid_derivative(self.layers[self.number_of_layers - 2 - x])
 
         self.weights[0] += d_weights0
         self.weights[1] += d_weights1
         self.weights[2] += d_weights2
 
     def train(self, number_of_iterations): #inputs, and outputs for training
-        i = 0
         for iteration in xrange(number_of_iterations):
-            #self.feedforward(self.input)
+            self.feedforward(self.input)
             self.backprop()
-            i += 1
-            if(i % 10000 == 0):
-                print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
-                print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
-                print
 
 
 def sigmoid(x):
@@ -67,12 +63,9 @@ if __name__ == "__main__":
 
     neural_network = NeuralNetwork(training_set_inputs, training_set_outputs)
 
-    print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
-    print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
-    print
+    for x in range(100):
+        print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
+        print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
+        print
 
-    neural_network.train(1000000)
-
-    print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
-    print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
-    print
+        neural_network.train(10000)
