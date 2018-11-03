@@ -7,22 +7,22 @@ class NeuralNetwork:
     def __init__(self, inputs, y): #number of layers, array of nodes per layer, add biases
         self.input      = inputs
         self.y          = y
-        self.weights = [np.random.rand(self.input.shape[1], 3), np.random.rand(3, 2), np.random.rand(2, 2)]
+        self.weights = [np.random.rand(self.input.shape[1], 3), np.random.rand(3, 2), np.random.rand(2, self.y.shape[1])]
         bf.exp(5000,bf.precision(100))
-        self.biases = [np.random.rand(3), np.random.rand(2), np.random.rand(2)]
+        self.biases = [np.random.rand(3), np.random.rand(2), np.random.rand(self.y.shape[1])]
         #self.layers = num of layers + 1 for input
 
     #def addlayer(self, num_of_nodes):
 
     def feedforward(self, layer):
-        for w in self.weights: #+ self.biases using zip?
-            layer = sigmoid(np.dot(layer, w))# + b)
+        for w, b in zip(self.weights, self.biases):
+            layer = sigmoid(np.dot(layer, w) + b)
         return layer
 
     def backprop(self):
-        layer1 = sigmoid(np.dot(self.input, self.weights[0]))# + self.biases[0])
-        layer2 = sigmoid(np.dot(layer1, self.weights[1]))# + self.biases[1])
-        output = sigmoid(np.dot(layer2, self.weights[2]))# + self.biases[2])
+        layer1 = sigmoid(np.dot(self.input, self.weights[0]) + self.biases[0])
+        layer2 = sigmoid(np.dot(layer1, self.weights[1]) + self.biases[1])
+        output = sigmoid(np.dot(layer2, self.weights[2]) + self.biases[2])
 
         w2 = 2 * (self.y - output) * sigmoid_derivative(output)
         d_weights2 = np.dot(layer2.T, w2)
@@ -31,13 +31,13 @@ class NeuralNetwork:
         w0 = np.dot(w1, self.weights[1].T) * sigmoid_derivative(layer1)
         d_weights0 = np.dot(self.input.T, w0)
 
-        #d_biases2 = 2 * (self.y - output) * sigmoid_derivative(output)
-        #d_biases1 = np.dot(d_biases2, self.weights[2].T) * sigmoid_derivative(layer2)
-        #d_biases0 = np.dot(d_biases1, self.weights[1].T) * sigmoid_derivative(layer1)
+        d_biases2 = 2 * (self.y - output) * sigmoid_derivative(output)
+        d_biases1 = np.dot(d_biases2, self.weights[2].T) * sigmoid_derivative(layer2)
+        d_biases0 = np.dot(np.ones((3, 6)), np.dot(d_biases1, self.weights[1].T) * sigmoid_derivative(layer1))
 
-        #self.biases[0] += d_biases0
-        #self.biases[1] += d_biases1
-        #self.biases[2] += d_biases2
+        self.biases[0] += d_biases0[0]
+        self.biases[1] += d_biases1[0]
+        self.biases[2] += d_biases2[0]
 
         self.weights[0] += d_weights0
         self.weights[1] += d_weights1
@@ -50,8 +50,9 @@ class NeuralNetwork:
             self.backprop()
             i += 1
             if(i % 10000 == 0):
-                print(array([1, 0]), neural_network.feedforward(array([0, 0, 0])))
-                print(array([0, 1]), neural_network.feedforward(array([1, 1, 1])))
+                print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
+                print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
+                print
 
 
 def sigmoid(x):
@@ -66,10 +67,12 @@ if __name__ == "__main__":
 
     neural_network = NeuralNetwork(training_set_inputs, training_set_outputs)
 
-    print(array([1, 0]), neural_network.feedforward(array([0, 0, 0])))
-    print(array([0, 1]), neural_network.feedforward(array([1, 1, 1])))
+    print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
+    print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
+    print
 
     neural_network.train(1000000)
 
-    print(array([1, 0]), neural_network.feedforward(array([0, 0, 0])))
-    print(array([0, 1]), neural_network.feedforward(array([1, 1, 1])))
+    print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
+    print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
+    print
