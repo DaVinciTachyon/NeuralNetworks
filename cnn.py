@@ -1,12 +1,11 @@
-from numpy import *
+from numpy import dot, exp, array
 import numpy as np
-from bigfloat import *
+from bigfloat import exp, precision
 import bigfloat as bf
 #store training data, have the ability to add data or clear all data
-#automatically test, and give back percentage error
-#train by giving or not givin data
+#get percentage error
+#train by giving or not giving data
 #train until a specific margin of error
-#take hidden layers as input, but enforce the fact that it is 1 dimensional
 
 class NeuralNetwork:
     #sample input, sample output, array of number of nodes in hidden layer
@@ -65,23 +64,8 @@ class NeuralNetwork:
             self.feedforward(self.input)
             self.backprop()
 
-#make part of class
 def sigmoid(x):
     return 1/(1+np.exp(-x))
 
 def sigmoid_derivative(x):
     return x*(1-x)
-
-if __name__ == "__main__":
-    training_set_inputs = array([[0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0]])
-    training_set_outputs = array([[1, 0], [1, 0], [1, 0], [0, 1], [0, 1], [0, 1]])
-    #training_set_outputs = array([[0], [0], [0], [1], [1], [1]])
-
-    neural_network = NeuralNetwork(training_set_inputs[0], training_set_outputs[0], [3])
-
-    for x in range(10):
-        print "desired: ", array([1, 0]), " - actual: ", neural_network.feedforward(array([0, 0, 0]))
-        print "desired: ", array([0, 1]), " - actual: ", neural_network.feedforward(array([1, 1, 1]))
-        print
-
-        neural_network.train(10000, training_set_inputs, training_set_outputs)
