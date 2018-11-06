@@ -7,7 +7,7 @@ import bigfloat as bf
 #train by giving or not giving data
 #train until a specific margin of error
 
-class NeuralNetwork:
+class ConvolutionalNeuralNetwork:
     #sample input, sample output, array of number of nodes in hidden layer
     def __init__(self, input, output, nodes = [3, 2]):
         bf.exp(5000,bf.precision(100))
