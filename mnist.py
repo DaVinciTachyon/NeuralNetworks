@@ -13,63 +13,45 @@ seven   = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
 eight   = [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
 nine    = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
+def number(value):
+    if(value == '0'):
+        return zero
+    elif(value == '1'):
+        return one
+    elif(value == '2'):
+        return two
+    elif(value == '3'):
+        return three
+    elif(value == '4'):
+        return four
+    elif(value == '5'):
+        return five
+    elif(value == '6'):
+        return six
+    elif(value == '7'):
+        return seven
+    elif(value == '8'):
+        return eight
+    elif(value == '9'):
+        return nine
+
 neural_network = None
 with open('MNIST/mnist_train.csv', 'r') as csvFile:
     reader = csv.reader(csvFile)
     print "inputting training data"
     for row in reader:
-        output = None
-        if(row[0] == '0'):
-            output = zero
-        elif(row[0] == '1'):
-            output = one
-        elif(row[0] == '2'):
-            output = two
-        elif(row[0] == '3'):
-            output = three
-        elif(row[0] == '4'):
-            output = four
-        elif(row[0] == '5'):
-            output = five
-        elif(row[0] == '6'):
-            output = six
-        elif(row[0] == '7'):
-            output = seven
-        elif(row[0] == '8'):
-            output = eight
-        elif(row[0] == '9'):
-            output = nine
+        output = number(row[0])
         del row[0]
         row = list(map(int, row))
         if(neural_network == None):
-            neural_network = ConvolutionalNeuralNetwork(row, output, [30, 20, 16, 20])
+            neural_network = ConvolutionalNeuralNetwork(row, output, [30, 20, 16, 12])
         neural_network.addEntry(row, output)
 csvFile.close()
 with open('MNIST/mnist_test.csv', 'r') as csvFile:
     reader = csv.reader(csvFile)
     print "inputting test data"
     for row in reader:
-        output = None
-        if(row[0] == '0'):
-            output = zero
-        elif(row[0] == '1'):
-            output = one
-        elif(row[0] == '2'):
-            output = two
-        elif(row[0] == '3'):
-            output = three
-        elif(row[0] == '4'):
-            output = four
-        elif(row[0] == '5'):
-            output = five
-        elif(row[0] == '6'):
-            output = six
-        elif(row[0] == '7'):
-            output = seven
-        elif(row[0] == '8'):
-            output = eight
-        elif(row[0] == '9'):
-            output = nine
+        output = number(row[0])
         del row[0]
         row = list(map(int, row))
         neural_network.addTestEntry(row, output)
