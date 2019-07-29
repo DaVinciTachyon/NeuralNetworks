@@ -57,7 +57,7 @@ with open('MNIST/mnist_test.csv', 'r') as csvFile:
         neural_network.addTestEntry(row, output)
 csvFile.close()
 
-print neural_network.test()
-for x in range(100):
-    neural_network.train(10000)
-    print neural_network.test()
+for x in range(5):
+    print x, "-", neural_network.test()
+    neural_network.train(100000)
+print "final -", neural_network.test()
