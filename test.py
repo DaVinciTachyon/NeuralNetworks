@@ -11,4 +11,4 @@ for x in range(10):
     print "desired: ", array([0]) , " - actual: ", neural_network.feedforward(array([0, 0, 0]))
     print "desired: ", array([1]), " - actual: ", neural_network.feedforward(array([1, 1, 1])), "\n"
 
-    neural_network.train(1000)
+    neural_network.train(10000)
