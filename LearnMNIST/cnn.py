@@ -33,7 +33,7 @@ class ConvolutionalNeuralNetwork:
         for w, b in zip(self.weights, self.biases):
             if(i > 0):
                 layer = self.layers[i - 1]
-            self.layers[i] = sigmoid(np.dot(layer, w) + b)
+            self.layers[i] = self.activation_function(np.dot(layer, w) + b)
             i += 1
         return self.layers[self.number_of_layers - 1]
 
@@ -42,17 +42,17 @@ class ConvolutionalNeuralNetwork:
         for x in range(len(self.weights)):
             d_weights.append(array((self.weights[x].shape[0], self.weights[x].shape[1])))
 
-        prev = 2 * (self.y - self.layers[self.number_of_layers - 1]) * sigmoid_derivative(self.layers[self.number_of_layers - 1])
+        prev = 2 * (self.y - self.layers[self.number_of_layers - 1]) * self.activation_function_derivative(self.layers[self.number_of_layers - 1])
         for x in range(self.number_of_layers - 1):
             d_weights[self.number_of_layers - 1 - x] = np.dot(self.layers[self.number_of_layers - 2 - x].T, prev)
-            prev = np.dot(prev, self.weights[self.number_of_layers - 1 - x].T) * sigmoid_derivative(self.layers[self.number_of_layers - 2 - x])
+            prev = np.dot(prev, self.weights[self.number_of_layers - 1 - x].T) * self.activation_function_derivative(self.layers[self.number_of_layers - 2 - x])
         d_weights[0] = np.dot(self.input.T, prev)
 
-        d_bias = 2 * (self.y - self.layers[self.number_of_layers - 1]) * sigmoid_derivative(self.layers[self.number_of_layers - 1])
+        d_bias = 2 * (self.y - self.layers[self.number_of_layers - 1]) * self.activation_function_derivative(self.layers[self.number_of_layers - 1])
         for x in range(self.number_of_layers):
             self.biases[self.number_of_layers - 1 - x] += d_bias[0]
             if(x < self.number_of_layers - 1):
-                d_bias = np.dot(d_bias, self.weights[self.number_of_layers - 1 - x].T) * sigmoid_derivative(self.layers[self.number_of_layers - 2 - x])
+                d_bias = np.dot(d_bias, self.weights[self.number_of_layers - 1 - x].T) * self.activation_function_derivative(self.layers[self.number_of_layers - 2 - x])
 
         for x in range(self.number_of_layers):
             self.weights[x] += d_weights[x]
@@ -85,15 +85,28 @@ class ConvolutionalNeuralNetwork:
             self.test_output = output
     
     def test(self):
+        """
         result = self.feedforward(self.test_input)
         percentage = 0
         for r, t in zip(result, self.test_output):
             for rc, tc in zip(r, t):
-                if(percentage == 0):
-                    percentage = abs((rc - tc) / 2)
-                else:
-                    percentage = abs((percentage + (rc - tc)) / 2)
-        return (1 - percentage) * 100
+                percentage = abs((percentage + (rc - tc)) / 2)
+        return percentage
+        """
+        result = self.feedforward(self.test_input)
+        percentage = 0
+        m = 0
+        for r, t in zip(result, self.test_output):
+            for rc, tc in zip(r, t):
+                percentage = percentage + (rc - tc)**2
+                m = m + 1
+        return (percentage / m)**(1.0/2.0)
+    
+    def activation_function(self, x):
+        return sigmoid(x)
+
+    def activation_function_derivative(self, x):
+        return sigmoid_derivative(x)
 
 def sigmoid(x):
     return 1/(1+np.exp(-x))
