@@ -44,7 +44,7 @@ with open('MNIST/mnist_train.csv', 'r') as csvFile:
         del row[0]
         row = list(map(int, row))
         if(neural_network == None):
-            neural_network = ConvolutionalNeuralNetwork(row, output, [30, 20, 16, 12])
+            neural_network = ConvolutionalNeuralNetwork(row, output, [3, 5, 10])
         neural_network.addEntry(row, output)
 csvFile.close()
 with open('MNIST/mnist_test.csv', 'r') as csvFile:
@@ -59,7 +59,9 @@ csvFile.close()
 
 x = 0
 while True:
-    print x, "-", neural_network.test()
-    neural_network.train(100000)
+    print x, "-", 1 - neural_network.test()
+    neural_network.train(1)
     x = x + 1
+    if x > 10:
+        break
 print "final -", neural_network.test()
